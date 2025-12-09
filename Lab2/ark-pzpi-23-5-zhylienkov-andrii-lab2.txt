@@ -1,0 +1,487 @@
+﻿МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+ 
+  
+КАФЕДРА ПРОГРАМНОЇ ІНЖЕНЕРІЇ
+ 
+
+
+ 
+Дисципліна «Аналіз та рефакторинг коду»
+Звіт
+з лабораторної роботи №2
+
+
+ 
+ 
+   
+Виконав:
+ст. гр. ПЗПІ-23-5
+Жилєнков А. О.
+
+
+	 
+	Перевірив:
+ст. викладач кафедри ПІ
+Сокорчук І. П.
+ 
+	
+
+
+
+
+
+Харків – 2025
+1 ІСТОРІЯ ЗМІН
+№
+	Дата
+	Версія звіту
+	Опис змін та виправлень
+	1
+	05.12.2025
+	0.1
+	Створено розділ «Завдання»
+	2
+	05.12.2025
+	0.1
+	Створено розділ «Опис Виконаної роботи»
+	3
+	05.12.2025
+	0.1
+	Створено розділ «Висновки»
+	4
+	05.12.2025
+	0.1
+	Створено розділ «Використані джерела»
+	5
+	05.12.2025
+	0.1
+	Створено розділ «Додаток А»
+	6
+	05.12.2025
+	0.1
+	Створено розділ «Додаток Б»
+	7
+	05.12.2025
+	0.1
+	Створено розділ «Додаток В»
+	________________
+2 ЗАВДАННЯ
+Створення серверної частини програмної системи для керування прокатом автомобілів, включно з архітектурою, базою даних, механізмами взаємодії та засобами авторизації користувачів. Необхідно проаналізувати вимоги предметної області та, спираючись на них, розробити узгоджену структуру програмної системи, що охоплює рівень даних, рівень бізнес-логіки та рівень API. У процесі роботи треба спроєктувати та описати будову системи, підготувати UML-діаграму прецедентів серверної частини, визначити модель даних та відобразити її у вигляді ER-діаграми, після чого реалізувати цю модель у формі реляційної бази даних MSSQL Server. Також необхідно створити діаграму структури БД, впровадити механізми доступу до даних за допомогою ORM, розробити API, що забезпечує повний цикл взаємодії серверної частини з клієнтськими інтерфейсами, оформити специфікацію цього API та створити його повноцінну реалізацію.
+________________
+
+
+3 ОПИС ВИКОНАНОЇ РОБОТИ
+Розроблення програмної системи розпочиналося зі створення її загальної будови, у межах якої визначалося, що вся логіка функціонування сервісу оренди автомобілів зосереджена у єдиному серверному застосунку на платформі ASP.NET Core Razor Pages [1]. Такий підхід не потребує надмірної кількості мов програмування й дозволяє зручно поєднати відображення, бізнес-логіку, доступ до даних і механізми авторизації. У системі передбачено два основні типи користувачів: звичайний клієнт, який може здійснювати перегляд каталогу автомобілів, робити бронювання й скасовувати його, та адміністратор, що керує каталогом, статусами машин, бронюваннями та клієнтами.
+Подальша формалізація сценаріїв взаємодії здійснювалася у формі UML-діаграми прецедентів, де були визначені дії кожного актора (див. рис. Б.1). З одного боку, клієнт може авторизуватися, реєструватися, переглядати автомобілі, здійснювати бронювання та скасовувати його. З іншого боку, адміністратор отримує змогу виконувати операції управління даними, зокрема редагування інформації про автомобілі, зміну їхнього статусу, перегляд і корекцію бронювань та взаємодію з інформацією про користувачів.
+Щоб забезпечити узгодженість усіх даних у системі, була побудована ER-діаграма (див. рис. Б.2), що демонструє структуру сутностей БД та зв’язки між ними. Модель включає три ключові сутності: користувачів, автомобілі та бронювання. Сутність користувача містить основні ідентифікаційні атрибути та роль, що дозволяє розмежувати поведінку на стороні сервера. Автомобілі мають свій опис, ціну оренди та статус доступності. Бронювання пов’язує користувача й автомобіль, а також містить часові межі та поточний стан операції.
+На основі побудованої моделі було створено власне базу даних (див. рис. Б.3) MSSQL Server [2]. Реалізація здійснювалася через Entity Framework Core [3], що дозволило визначити всі сутності як класи та автоматично створити структуру таблиць з первинними й зовнішніми ключами. До того ж у БД збережено довідник статусів автомобілів, що забезпечує контроль за доступністю машин для клієнтів.
+Функції роботи з базою даних реалізовано у вигляді ORM-підходу, де всі операції над сутностями здійснюються через контекст EF Core. Саме через нього виконуються створення, редагування, видалення та пошук автомобілів, а також операції з бронюваннями та користувачами. Під час створення бронювання система перевіряє відсутність перетинань дат із іншими активними бронюваннями та стан автомобіля, оскільки позначка unavailable блокує можливість оренди. Такий підхід знімає з розробника необхідність писати вручну SQL-запити, зберігаючи при цьому повний контроль над бізнес-логікою в моделі застосунку.
+Подальша частина розробки стосувалася створення API, який реалізовано у формі Razor Pages, де кожна сторінка фактично виступає обробником HTTP-запитів. Це свідомо спрощує архітектуру, бо уся робота з даними прив’язана до методів OnGet та OnPost відповідних сторінок, які виконують роль серверних ендпоінтів. Кожен із таких ендпоінтів приймає дані з форм, виконує необхідні перевірки та повертає Razor-сторінку як відповідь. Незважаючи на спрощений формат, усе це виконує функції повноцінного API, зокрема авторизація, керування сесіями та обробка форм взаємодії.
+Створення програмної реалізації охоплювало як самі Razor-сторінки, так і код серверних моделей. Увесь функціонал обробки форм, перевірки даних, оновлення статусів, створення та скасування бронювань реалізовано всередині PageModel-класів. Окремо налаштовано автентифікацію через Cookie Auth, що дозволяє системі надійно визначати користувача й обмежувати доступ до адміністративних сторінок. Реалізація передбачає розподіл ролей, через що адміністратор потрапляє на свій окремий інтерфейс керування, тоді як звичайний клієнт бачить каталог машин і сторінку власних бронювань.
+Специфікація API серверної частини системи оренди автомобілів:
+1. Авторизація та керування сесією
+POST /api/auth/login
+Призначення: виконання аутентифікації користувача.
+Тіло запиту:
+* email — електронна адреса користувача
+* password — пароль у текстовому вигляді
+Відповідь:
+* 200 OK — повертає успішний статус та створює cookie-сесію
+* 401 Unauthorized — неправильні облікові дані
+POST /api/auth/logout
+Призначення: припинення користувацької сесії.
+Відповідь:
+   * 200 OK
+2. Робота з автомобілями (для клієнтів та адміністратора)
+GET /api/cars
+Призначення: отримання списку всіх автомобілів.
+Параметри:
+   * status = available/unavailable (необов’язковий)
+Відповідь:
+   * список автомобілів із повним описом та статусом
+GET /api/cars/{id}
+Призначення: отримання деталей окремого автомобіля.
+POST /api/cars (адмін)
+Призначення: створення нового запису автомобіля.
+Тіло запиту:
+      * brand, model, year, pricePerDay, statusId
+PUT /api/cars/{id} (адмін)
+Призначення: редагування даних автомобіля.
+PATCH /api/cars/{id}/status (адмін)
+Призначення: змінення статусу автомобіля на Available або Unavailable.
+Тіло запиту:
+      * statusId
+DELETE /api/cars/{id} (адмін)
+Призначення: видалення автомобіля.
+3. Робота з бронюваннями
+POST /api/bookings
+Призначення: створення нового бронювання.
+Тіло запиту:
+      * carId
+      * startDate
+      * endDate
+Відповідь:
+      * 201 Created — у разі успіху
+      * 400 Bad Request — якщо авто недоступне або дати перетинаються
+GET /api/bookings/my
+Призначення: отримання списку бронювань поточного користувача.
+DELETE /api/bookings/{id}
+Призначення: скасування бронювання власником або адміністратором.
+GET /api/bookings (адмін)
+Призначення: отримання повного списку бронювань системи.
+4. Робота з користувачами (адмін)
+GET /api/users
+Призначення: перегляд усіх зареєстрованих клієнтів.
+GET /api/users/{id}
+Призначення: перегляд детальної інформації про користувача.
+DELETE /api/users/{id}
+Призначення: видалення користувача разом із його бронюваннями.
+5. Повернення помилок
+API використовує стандартну структуру помилки:
+         * error — короткий код помилки
+         * message — пояснення труднощів
+         * details — додаткова інформація (необов’язково)
+Приклади:
+         * 400 — некоректні дані або логічний конфлікт
+         * 401 — відсутність авторизації
+         * 403 — недостатньо прав
+         * 404 — ресурс не знайдено
+         * 500 — внутрішня помилка сервера
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________
+
+
+ВИСНОВКИ
+У результаті виконаної роботи вдалося повністю побудувати та описати серверну частину системи прокату автомобілів, починаючи від архітектурного проєктування та закінчуючи програмною реалізацією і тестуванням. Упорядкування вимог та формалізація сценаріїв користувацької взаємодії дозволили створити цілісну UML-діаграму прецедентів, яка визначила логічні межі системи та допомогла сформувати інтерфейси взаємодії між її компонентами. Опрацювання моделі даних привело до створення ER-діаграми та структури БД, а подальша імплементація у MSSQL Server забезпечила фундамент для всіх функцій системи. Використання ORM дало змогу організувати роботу з даними в безпечний і стабільний спосіб, а розроблений API сформував стандартний механізм взаємодії між сервером та клієнтом. Реалізація API та бізнес-логіки підтвердила відповідність програмної системи проєктним моделям. Після тестування була перевірена коректність роботи всіх модулів, включаючи авторизацію, управління автомобілями, обробку бронювань та адміністративні функції.
+________________
+ВИКОРИСТАНІ ДЖЕРЕЛА
+         1. Microsoft Corporation. ASP.NET Core — офіційна документація [Електронний ресурс]. — Посилання: https://learn.microsoft.com/aspnet/core (дата звернення: 05.12.2025).
+         2. Microsoft SQL Server — офіційна документація [Електронний ресурс]. — Посилання: https://learn.microsoft.com/sql (дата звернення: 05.12.2025).
+         3. Microsoft Corporation. Entity Framework Core — офіційна документація [Електронний ресурс]. — Посилання: https://learn.microsoft.com/ef/core (дата звернення: 05.12.2025).
+
+
+
+
+________________
+
+
+ДОДАТОК А
+Відеозапис
+Відеозапис презентації результатів лабораторної роботи: https://youtu.be/TirLw8-8Hcs
+Хронологічний опис відеозапису
+00:37 — AppDbContext.cs
+01:40 — Models
+02:08 — Program.cs
+03:23 — Login
+04:22 — Register
+05:25 — Car catalogue
+06:14 — Bookings
+07:00 — Demo
+________________
+ДОДАТОК Б
+Графічні матеріали
+
+
+  Рисунок Б.1 — UML-діаграма прецедентів
+
+
+  
+Рисунок Б.2 — ER-діаграма
+  Рисунок Б.3 — діаграма структури БД
+________________
+ДОДАТОК В
+Програмний код
+Посилання на Github: https://github.com/NureZhylienkovAndrii/ark-pzpi-23-5-zhylienkov-andrii/tree/main/Lab2
+В.1 AppDbContext.cs
+ 1 namespace AutoRent.Data
+ 2 {
+ 3     using Microsoft.EntityFrameworkCore;
+ 4     using AutoRent.Models;
+ 5
+ 6     public class AppDbContext : DbContext
+ 7     {
+ 8         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+ 9         {
+10         }
+11         protected override void OnModelCreating(ModelBuilder modelBuilder)
+12         {
+13             modelBuilder.Entity<Car>()
+14                 .Property(c => c.PricePerDay)
+15                 .HasPrecision(18, 2);
+16
+17             base.OnModelCreating(modelBuilder);
+18         }
+19
+20         public DbSet<User> Users { get; set; }
+21         public DbSet<Car> Cars { get; set; }
+22         public DbSet<CarStatus> CarStatus { get; set; }
+23         public DbSet<Booking> Bookings { get; set; }
+24     }
+25 }
+В.2 Модель Bookings.cs
+ 1 namespace AutoRent.Models
+ 2 {
+ 3     public class Booking
+ 4     {
+ 5         public int Id { get; set; }
+ 6         public int UserId { get; set; }
+ 7         public int CarId { get; set; }
+ 8 
+ 9         public DateTime StartDate { get; set; }
+10         public DateTime EndDate { get; set; }
+11         public string Status { get; set; } = "Booked";
+12         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+13 
+14         public User User { get; set; } = null!;
+15         public Car Car { get; set; } = null!;
+16     }
+17 }
+В.3 Модель Car.cs
+1 namespace AutoRent.Models
+2 {
+3     public class Car
+4     {
+5         public int Id { get; set; }
+6         public string Brand { get; set; } = null!;
+7         public string Model { get; set; } = null!;
+8         public int Year { get; set; }
+9         public decimal PricePerDay { get; set; }
+10        public int StatusId { get; set; }
+11
+12        public CarStatus Status { get; set; } = null!;
+13        public List<Booking> Bookings { get; set; } = new();
+14    }
+15 }
+
+
+В.4 Модель CarStatus.cs
+1 namespace AutoRent.Models
+2 {
+3     public class CarStatus
+4     {
+5         public int Id { get; set; }
+6         public string Name { get; set; } = null!;
+7         public List<Car> Cars { get; set; } = new();
+8     }
+9 }
+В.5 Модель User.cs
+1 namespace AutoRent.Models
+2 {
+3     public class User
+4     {
+5         public int Id { get; set; }
+6         public string Email { get; set; } = null!;
+7         public string PasswordHash { get; set; } = null!;
+8         public string FullName { get; set; } = null!;
+9         public string Role { get; set; } = "User";
+10        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+11
+12        public List<Booking> Bookings { get; set; } = new();
+13    }
+14 }
+
+
+
+
+
+
+В.6 Перегляд каталогу автомобілв та створення бронювання (Index.cs)
+ 1  using AutoRent.Data;
+ 2  using AutoRent.Models;
+ 3  using Microsoft.AspNetCore.Mvc;
+ 4  using Microsoft.AspNetCore.Mvc.RazorPages;
+ 5  using Microsoft.EntityFrameworkCore;
+ 6  
+ 7  namespace AutoRent.Pages.Cars
+ 8  {
+ 9      public class IndexModel : PageModel
+10      {
+11          private readonly AppDbContext _db;
+12  
+13          public IndexModel(AppDbContext db)
+14          {
+15              _db = db;
+16          }
+17  
+18          public List<Car> Cars { get; set; }
+19          public string Message { get; set; }
+20  
+21          [BindProperty]
+22          public int CarId { get; set; }
+23  
+24          [BindProperty]
+25          public DateTime StartDate { get; set; }
+26  
+27          [BindProperty]
+28          public DateTime EndDate { get; set; }
+29  
+30          public async Task OnGetAsync()
+31          {
+32              Cars = await _db.Cars.Include(c => c.Status).ToListAsync();
+33          }
+34  
+35          public async Task<IActionResult> OnPostAsync()
+36          {
+37              var userId = User.FindFirst("UserId")?.Value;
+38              if (userId == null)
+39                  return RedirectToPage("/Auth/Login");
+40  
+41              if (StartDate >= EndDate)
+42              {
+43                  Message = "Неправильний проміжок дат.";
+44                  await OnGetAsync();
+45                  return Page();
+46              }
+47  
+48              var car = await _db.Cars.FindAsync(CarId);
+49              if (car == null)
+50              {
+51                  Message = "Автомобіль не знайдено.";
+52                  await OnGetAsync();
+53                  return Page();
+54              }
+55  
+56              if (car.StatusId != 1)
+57              {
+58                  Message = "Це авто наразі недоступне для бронювання.";
+59                  await OnGetAsync();
+60                  return Page();
+61              }
+62  
+63              var exists = await _db.Bookings.AnyAsync(b =>
+64                  b.CarId == CarId &&
+65                  b.Status != "Cancelled" &&
+66                  ((StartDate >= b.StartDate && StartDate < b.EndDate) ||
+67                   (EndDate > b.StartDate && EndDate <= b.EndDate) ||
+68                   (StartDate <= b.StartDate && EndDate >= b.EndDate))
+69              );
+70  
+71              if (exists)
+72              {
+73                  Message = "Автомобіль вже заброньований у цей період.";
+74                  await OnGetAsync();
+75                  return Page();
+76              }
+77  
+78              var booking = new Booking
+79              {
+80                  CarId = CarId,
+81                  UserId = int.Parse(userId),
+82                  StartDate = StartDate,
+83                  EndDate = EndDate,
+84                  Status = "Active",
+85                  CreatedAt = DateTime.Now
+86              };
+87  
+88              _db.Bookings.Add(booking);
+89              await _db.SaveChangesAsync();
+90  
+91              Message = "Бронювання успішно створено!";
+92              await OnGetAsync();
+93              return Page();
+94          }
+95      }
+96  }
+
+
+
+
+
+
+В.7 Перегляд власних бронювань користувача (My.cs)
+1   using AutoRent.Data;
+2   using AutoRent.Models;
+3   using Microsoft.AspNetCore.Mvc;
+4   using Microsoft.AspNetCore.Mvc.RazorPages;
+5   using Microsoft.EntityFrameworkCore;
+6
+7   namespace AutoRent.Pages.Bookings
+8   {
+9       public class MyModel : PageModel
+10      {
+11          private readonly AppDbContext _db;
+12
+13          public MyModel(AppDbContext db)
+14          {
+15              _db = db;
+16          }
+17
+18          public List<Booking> Bookings { get; set; }
+19          public string Message { get; set; }
+20
+21          [BindProperty]
+22          public int BookingId { get; set; }
+23
+24          public async Task<IActionResult> OnGetAsync()
+25          {
+26              var userIdClaim = User.FindFirst("UserId")?.Value;
+27              if (userIdClaim == null)
+28                  return RedirectToPage("/Auth/Login");
+29
+30              int userId = int.Parse(userIdClaim);
+31
+32              Bookings = await _db.Bookings
+33                  .Include(b => b.Car)
+34                  .Where(b => b.UserId == userId)
+35                  .OrderByDescending(b => b.CreatedAt)
+36                  .ToListAsync();
+37
+38              return Page();
+39          }
+40
+41          public async Task<IActionResult> OnPostAsync()
+42          {
+43              var userId = HttpContext.Session.GetInt32("UserId");
+44
+45              if (userId is null)
+46                  return RedirectToPage("/Auth/Login");
+47
+48              var booking = await _db.Bookings
+49                  .FirstOrDefaultAsync(b => b.Id == BookingId && b.UserId == userId);
+50
+51              if (booking == null)
+52              {
+53                  Message = "Бронювання не знайдено.";
+54                  await LoadBookings(userId.Value);
+55                  return Page();
+56              }
+57
+58              if (booking.Status == "Cancelled")
+59              {
+60                  Message = "Це бронювання вже скасоване.";
+61                  await LoadBookings(userId.Value);
+62                  return Page();
+63              }
+64
+65              booking.Status = "Cancelled";
+66              await _db.SaveChangesAsync();
+67
+68              Message = "Бронювання скасовано.";
+69              await LoadBookings(userId.Value);
+70              return Page();
+71          }
+72
+73          private async Task LoadBookings(int userId)
+74          {
+75              Bookings = await _db.Bookings
+76                  .Include(b => b.Car)
+77                  .Where(b => b.UserId == userId)
+78                  .OrderByDescending(b => b.CreatedAt)
+79                  .ToListAsync();
+80          }
+81      }
+82  }
