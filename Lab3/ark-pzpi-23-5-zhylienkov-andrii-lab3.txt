@@ -1,0 +1,369 @@
+﻿МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+ 
+  
+КАФЕДРА ПРОГРАМНОЇ ІНЖЕНЕРІЇ
+ 
+
+
+ 
+Дисципліна «Аналіз та рефакторинг коду»
+Звіт
+з лабораторної роботи №3
+
+
+ 
+ 
+   
+Виконав:
+ст. гр. ПЗПІ-23-5
+Жилєнков А. О.
+
+
+	 
+	Перевірив:
+ст. викладач кафедри ПІ
+Сокорчук І. П.
+ 
+	
+
+
+
+
+
+Харків – 2025
+1 ІСТОРІЯ ЗМІН
+№
+	Дата
+	Версія звіту
+	Опис змін та виправлень
+	1
+	14.12.2025
+	0.1
+	Створено розділ «Завдання»
+	2
+	14.12.2025
+	0.1
+	Створено розділ «Опис Виконаної роботи»
+	3
+	14.12.2025
+	0.1
+	Створено розділ «Висновки»
+	4
+	14.12.2025
+	0.1
+	Створено розділ «Використані джерела»
+	5
+	14.12.2025
+	0.1
+	Створено розділ «Додаток А»
+	6
+	14.12.2025
+	0.1
+	Створено розділ «Додаток Б»
+	7
+	14.12.2025
+	0.1
+	Створено розділ «Додаток В»
+	________________
+2 ЗАВДАННЯ
+Проєктування та реалізація серверної частини програмної системи оренди автомобілів із підтримкою бізнес-логіки та функцій адміністрування. У межах виконання роботи необхідно розробити логічну модель обробки основних процесів системи, зокрема створення та скасування бронювань, перевірки доступності транспортних засобів і коректності часових інтервалів оренди. Також спроєктувати та розробити функції адміністрування серверної частини програмної системи.
+________________
+
+
+3 ОПИС ВИКОНАНОЇ РОБОТИ
+Розробка бізнес-логіки серверної частини програмної системи була спрямована на формування надійного механізму обробки ключових процесів оренди автомобілів та забезпечення коректної взаємодії між користувачами, базою даних і прикладним інтерфейсом. Основний акцент було зроблено на реалізації логіки створення бронювань, оскільки саме цей процес є критичним для функціонування системи. На рівні серверної частини реалізовано перевірку факту автентифікації користувача перед виконанням будь-яких дій, пов’язаних із бронюванням, що унеможливлює несанкціонований доступ до функціональності системи. Додатково здійснюється валідація введених дат початку та завершення оренди з метою запобігання створенню логічно некоректних бронювань, зокрема таких, у яких дата завершення передує даті початку або дорівнює їй. Важливою складовою бізнес-логіки є контроль доступності автомобіля, який базується на поточному статусі транспортного засобу та наявності активних бронювань у вибраному часовому проміжку. Для цього реалізовано перевірку на перетин дат нового бронювання з уже існуючими записами, що дозволяє повністю виключити можливість подвійного бронювання одного й того самого автомобіля. Окрім цього, в межах бізнес-логіки реалізовано обчислення тривалості оренди шляхом визначення кількості днів між датами початку та завершення бронювання, а також розрахунок кінцевої вартості оренди на основі добової ціни автомобіля. Такий підхід дозволяє виконувати необхідні фінансові розрахунки динамічно, без збереження надлишкової інформації в базі даних, що сприяє збереженню цілісності даних та спрощує подальше супроводження системи.
+Функції адміністрування серверної частини програмної системи були розроблені з урахуванням потреб централізованого управління ресурсами системи та контролю її роботи. Для адміністратора передбачено окремий функціональний інтерфейс, який надає доступ до основних об’єктів системи, зокрема автомобілів, користувачів і бронювань. У межах адміністрування автопарку реалізовано можливість перегляду списку транспортних засобів та зміни їхнього статусу на доступний або недоступний, що безпосередньо впливає на можливість бронювання відповідного автомобіля користувачами. Такий механізм дозволяє оперативно реагувати на зміну стану автомобіля, наприклад у разі технічного обслуговування, ремонту або тимчасового виведення з експлуатації, не змінюючи при цьому структуру даних або існуючі бронювання. Також реалізовано функціональність перегляду всіх бронювань, створених у системі, із можливістю зміни їхнього статусу, що забезпечує адміністративний контроль над процесом оренди та дозволяє відстежувати актуальний стан замовлень. Окрему увагу приділено перегляду зареєстрованих користувачів, що дає змогу аналізувати склад клієнтської бази та загальну активність у системі (див. додаток Б).
+
+
+
+
+________________
+
+
+ВИСНОВКИ
+У результаті виконання лабораторної роботи було розроблено серверну частину веб-застосунку для оренди автомобілів, яка забезпечує коректну реалізацію бізнес-логіки та функцій адміністрування. Реалізовані механізми перевірки доступності автомобілів, валідації дат бронювання та запобігання перетину бронювань дозволяють гарантувати цілісність даних і логічну узгодженість процесів оренди. Обчислення вартості бронювання на основі тривалості оренди та добової ціни автомобіля підтвердило можливість реалізації фінансових розрахунків без збереження надлишкових даних у базі даних. Розроблений адміністративний функціонал надає інструменти для управління автопарком, користувачами та бронюваннями, що підвищує керованість системи та зручність її експлуатації.
+________________
+ВИКОРИСТАНІ ДЖЕРЕЛА
+1. Microsoft Corporation. ASP.NET Core — офіційна документація [Електронний ресурс]. — Посилання: https://learn.microsoft.com/aspnet/core (дата звернення: 14.12.2025).
+2. Microsoft SQL Server — офіційна документація [Електронний ресурс]. — Посилання: https://learn.microsoft.com/sql (дата звернення: 14.12.2025).
+3. Microsoft Corporation. Entity Framework Core — офіційна документація [Електронний ресурс]. — Посилання: https://learn.microsoft.com/ef/core (дата звернення: 14.12.2025).
+
+
+
+
+________________
+
+
+ДОДАТОК А
+Відеозапис
+Відеозапис презентації результатів лабораторної роботи: https://youtu.be/Qq8wypqsRU4
+Хронологічний опис відеозапису
+00:28 — Управління бронюваннями
+02:01 — Управління автомобілями
+03:36 — Управління користувачами
+04:09 — Розрахунок загальної вартості бронювання
+05:06 — Demo
+________________
+ДОДАТОК Б
+Графічні матеріали
+
+
+  Рисунок Б.1 — Адмін-панель
+
+
+  
+Рисунок Б.2 — Сторінка управління автомобілями
+  Рисунок Б.3 — Сторінка управління бронюваннями
+
+
+  Рисунок Б.3 — Сторінка перегляду зареєстрованих користувачів
+________________
+ДОДАТОК В
+Програмний код
+Посилання на Github: https://github.com/NureZhylienkovAndrii/ark-pzpi-23-5-zhylienkov-andrii/tree/main/Lab2
+В.1 Bookings.cshtml.cs
+1   using AutoRent.Data;
+2   using AutoRent.Models;
+3   using Microsoft.AspNetCore.Mvc;
+4   using Microsoft.AspNetCore.Mvc.RazorPages;
+5   using Microsoft.EntityFrameworkCore;
+6
+7   namespace AutoRent.Pages.Admin
+8   {
+9       public class BookingsModel : PageModel
+10      {
+11          private readonly AppDbContext _db;
+12
+13          public BookingsModel(AppDbContext db)
+14          {
+15              _db = db;
+16          }
+17
+18          public List<Booking> Bookings { get; set; }
+19
+20          [BindProperty]
+21          public int BookingId { get; set; }
+22
+23          [BindProperty]
+24          public string NewStatus { get; set; }
+25
+26          public async Task OnGetAsync()
+27          {
+28              Bookings = await _db.Bookings
+29                  .Include(b => b.Car)
+30                  .Include(b => b.User)
+31                  .OrderByDescending(b => b.CreatedAt)
+32                  .ToListAsync();
+33          }
+34
+35          public async Task<IActionResult> OnPostUpdateAsync()
+36          {
+37              var booking = await _db.Bookings.FindAsync(BookingId);
+38              if (booking != null)
+39              {
+40                  booking.Status = NewStatus;
+41                  await _db.SaveChangesAsync();
+42              }
+43              return RedirectToPage();
+44          }
+45      }
+46  }
+
+
+В.2 Cars.cshtml.cs
+1  using AutoRent.Data;
+2  using AutoRent.Models;
+3  using Microsoft.AspNetCore.Mvc;
+4  using Microsoft.AspNetCore.Mvc.RazorPages;
+5  using Microsoft.EntityFrameworkCore;
+6  
+7  namespace AutoRent.Pages.Admin
+8  {
+9      public class CarsModel : PageModel
+10     {
+11         private readonly AppDbContext _db;
+12 
+13         public CarsModel(AppDbContext db)
+14         {
+15             _db = db;
+16         }
+17 
+18         public List<Car> Cars { get; set; }
+19 
+20         [BindProperty]
+21         public int DeleteId { get; set; }
+22 
+23         [BindProperty]
+24         public int CarId { get; set; }
+25 
+26         [BindProperty]
+27         public int NewStatusId { get; set; }
+28 
+29         public async Task OnGetAsync()
+30         {
+31             Cars = await _db.Cars.Include(c => c.Status).ToListAsync();
+32         }
+33 
+34         public async Task<IActionResult> OnPostDeleteAsync()
+35         {
+36             var car = await _db.Cars.FindAsync(DeleteId);
+37             if (car != null)
+38             {
+39                 _db.Cars.Remove(car);
+40                 await _db.SaveChangesAsync();
+41             }
+42             return RedirectToPage();
+43         }
+44 
+45         public async Task<IActionResult> OnPostChangeStatusAsync()
+46         {
+47             var car = await _db.Cars.FindAsync(CarId);
+48             if (car != null)
+49             {
+50                 car.StatusId = NewStatusId;
+51                 await _db.SaveChangesAsync();
+52             }
+53             return RedirectToPage();
+54         }
+55     }
+56 }
+
+
+В.3 Users.cshtml.cs
+1   using AutoRent.Data;
+2   using AutoRent.Models;
+3   using Microsoft.AspNetCore.Mvc.RazorPages;
+4   using Microsoft.EntityFrameworkCore;
+5
+6   namespace AutoRent.Pages.Admin
+7   {
+8       public class UsersModel : PageModel
+9       {
+10          private readonly AppDbContext _db;
+11
+12          public UsersModel(AppDbContext db)
+13          {
+14              _db = db;
+15          }
+16
+17          public List<User> Users { get; set; }
+18
+19          public async Task OnGetAsync()
+20          {
+21              Users = await _db.Users
+22                  .Where(u => u.Role == "User")
+23                  .ToListAsync();
+24          }
+25      }
+26  }
+
+
+
+
+В.4 Оновлений index.cshtml.cs
+1   using AutoRent.Data;
+2   using AutoRent.Models;
+3   using Microsoft.AspNetCore.Mvc;
+4   using Microsoft.AspNetCore.Mvc.RazorPages;
+5   using Microsoft.EntityFrameworkCore;
+6   
+7   namespace AutoRent.Pages.Cars
+8   {
+9       public class IndexModel : PageModel
+10      {
+11          private readonly AppDbContext _db;
+12  
+13          public IndexModel(AppDbContext db)
+14          {
+15              _db = db;
+16          }
+17  
+18          public List<Car> Cars { get; set; }
+19          public string Message { get; set; }
+20  
+21          [BindProperty]
+22          public int CarId { get; set; }
+23  
+24          [BindProperty]
+25          public DateTime StartDate { get; set; }
+26  
+27          [BindProperty]
+28          public DateTime EndDate { get; set; }
+29  
+30          public async Task OnGetAsync()
+31          {
+32              Cars = await _db.Cars
+33                  .Include(c => c.Status)
+34                  .ToListAsync();
+35          }
+36  
+37          public async Task<IActionResult> OnPostAsync()
+38          {
+39              var userId = User.FindFirst("UserId")?.Value;
+40              if (userId == null)
+41                  return RedirectToPage("/Auth/Login");
+42  
+43              if (StartDate >= EndDate)
+44              {
+45                  Message = "Неправильний проміжок дат.";
+46                  await OnGetAsync();
+47                  return Page();
+48              }
+49  
+50              var car = await _db.Cars.FindAsync(CarId);
+51              if (car == null)
+52              {
+53                  Message = "Автомобіль не знайдено.";
+54                  await OnGetAsync();
+55                  return Page();
+56              }
+57  
+58              if (car.StatusId != 1)
+59              {
+60                  Message = "Це авто наразі недоступне для бронювання.";
+61                  await OnGetAsync();
+62                  return Page();
+63              }
+64  
+65              var exists = await _db.Bookings.AnyAsync(b =>
+66                  b.CarId == CarId &&
+67                  b.Status != "Cancelled" &&
+68                  ((StartDate >= b.StartDate && StartDate < b.EndDate) ||
+69                   (EndDate > b.StartDate && EndDate <= b.EndDate) ||
+70                   (StartDate <= b.StartDate && EndDate >= b.EndDate))
+71              );
+72  
+73              if (exists)
+74              {
+75                  Message = "Автомобіль вже заброньований у цей період.";
+76                  await OnGetAsync();
+77                  return Page();
+78              }
+79  
+80              var days = (EndDate.Date - StartDate.Date).Days;
+81              if (days <= 0)
+82                  days = 1;
+83  
+84              var totalPrice = days * car.PricePerDay;
+85  
+86              var booking = new Booking
+87              {
+88                  CarId = CarId,
+89                  UserId = int.Parse(userId),
+90                  StartDate = StartDate,
+91                  EndDate = EndDate,
+92                  Status = "Active",
+93                  CreatedAt = DateTime.Now
+94              };
+95  
+96              _db.Bookings.Add(booking);
+97              await _db.SaveChangesAsync();
+98  
+99              Message = $"Бронювання успішно створено. Тривалість: {days} дн. Загальна вартість: {totalPrice:0.00} $";
+100 
+101             await OnGetAsync();
+102             return Page();
+103         }
+104     }
+105 }
