@@ -121,7 +121,7 @@ ________________
 ________________
 ДОДАТОК В
 Програмний код
-Посилання на Github: https://github.com/NureZhylienkovAndrii/ark-pzpi-23-5-zhylienkov-andrii/tree/main/Lab2
+Посилання на Github: https://github.com/NureZhylienkovAndrii/ark-pzpi-23-5-zhylienkov-andrii/tree/main/Lab3
 В.1 Bookings.cshtml.cs
 1   using AutoRent.Data;
 2   using AutoRent.Models;
@@ -366,4 +366,5 @@ ________________
 102             return Page();
 103         }
 104     }
+
 105 }
