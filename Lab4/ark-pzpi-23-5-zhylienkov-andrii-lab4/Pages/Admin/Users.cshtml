@@ -1,0 +1,24 @@
+﻿@page
+@model AutoRent.Pages.Admin.UsersModel
+
+<h2>Клієнти</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Імʼя</th>
+            <th>Роль</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model.Users)
+        {
+            <tr>
+                <td>@u.Email</td>
+                <td>@u.FullName</td>
+                <td>@u.Role</td>
+            </tr>
+        }
+    </tbody>
+</table>
